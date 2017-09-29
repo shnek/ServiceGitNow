@@ -1,0 +1,46 @@
+{
+    "instance": "instance",
+    "authorization": "Basic YWRtaW46VGVzdDEyMyQlXg==",
+    "tables": [
+      {
+        "name" : "sp_widget",
+        "foldername" : "id",
+        "sys_ids" : [
+          "e8e4e62f0f1103005bc087ece1050e2e"
+        ], 
+        "files" : [
+          {
+            "filename": "client.js",
+            "bodyname": "client_script"
+          },
+          {
+            "filename": "server.js",
+            "bodyname": "script"
+          },
+          {
+            "filename": "page.html",
+            "bodyname": "template"
+          },
+          {
+            "filename": "style.scss",
+            "bodyname": "css"
+          }
+        ]
+      },
+      {
+        "name" : "sys_script",
+        "foldername" : "sys_id",
+        "sys_ids" : [
+          "562f7ed04fb00300ab7100f18110c7ab"
+        ],
+        "files" : [
+          {
+            "filename" : "business.js",
+            "bodyname" : "script"
+          }
+        ]
+      }
+    ]
+    ,
+    "watcherFrequency": 1000  
+}
