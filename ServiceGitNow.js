@@ -3,25 +3,27 @@ var fs = require('fs');
 
 const conf = JSON.parse(fs.readFileSync("sgn.conf.json", "utf8"));
 
-conf.widgets.forEach( (widget) => {
-  const link = "https://" + conf.instance + ".service-now.com/api/now/table/sp_widget/" + widget;
+conf.tables.forEach( (table) => {
+  table.sys_ids.forEach((sys_id) => {
 
-  const response = syncWidgetCode(link, '');
+    const link = "https://" + conf.instance + ".service-now.com/api/now/table/" + table.name + "/" + sys_id;
+    const response = syncWidgetCode(link, '');
 
-  conf.files.forEach( ({filename, bodyname}) => {
-    if(!fs.existsSync("widgets")) fs.mkdirSync("widgets", ()=>{});
-    if(!fs.existsSync("./widgets/" + response.id)) fs.mkdirSync("./widgets/" + response.id, ()=>{});
-    fs.writeFile("./widgets/" + response.id + "/" + filename, response[bodyname], function(){
-      fs.watchFile("./widgets/" + response.id + "/" + filename, {persistent: true, interval: conf.watcherFrequency},  (curr, prev) => {
-        var data = fs.readFile("./widgets/" + response.id + "/" + filename, "utf8", (err, data) => {
-          if (err) throw err;
-          var body = {};
-          body[bodyname] = data;
-          syncWidgetCode(link, JSON.stringify(body));
+    table.files.forEach( ({filename, bodyname}) => {
+      if(!fs.existsSync(table.name)) fs.mkdirSync(table.name, ()=>{});
+      if(!fs.existsSync("./" + table.name + "/" + response[table.foldername])) fs.mkdirSync("./" + table.name + "/" + response[table.foldername], ()=>{});
+      fs.writeFile("./" + table.name + "/" + response[table.foldername] + "/" + filename, response[bodyname], function(){
+        fs.watchFile("./" + table.name + "/" + response[table.foldername] + "/" + filename, {persistent: true, interval: conf.watcherFrequency},  (curr, prev) => {
+          var data = fs.readFile("./" + table.name + "/" + response[table.foldername] + "/" + filename, "utf8", (err, data) => {
+            if (err) throw err;
+            var body = {};
+            body[bodyname] = data;
+            syncWidgetCode(link, JSON.stringify(body));
+          });
         });
-      });
-    })
-  })  
+      })
+    })  
+  }); 
 });
 
 function syncWidgetCode(link, body){
