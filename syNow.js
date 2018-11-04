@@ -3,7 +3,7 @@ var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var fs = require('fs-extra');
 var chokidar = require('chokidar');
 
-console.log("Running sy(nc)Now, a program that syncs ServiceNow scripts with local files. Type 'exit' and press enter to stop this program.")
+console.log("Running sy(nc)Now, a program that syncs ServiceNow scripts with local files. Type 'close' and press enter to stop this program.")
 
 const args = process.argv;
 const confFile = (args.length > 2 && args[2].endsWith(".conf.json")) ? args[2] : "sgn.conf.json";
@@ -13,9 +13,7 @@ const stdin = process.openStdin();
 
 var interface;
 
-
-var setup = args.filter(e => e == "--setup").length;
-if (setup) {
+if (hasFlag("--setup")) {
   enableSetup();
   interface.question('What is your <instance> name of <instance>.service-now.com?: ', (answer) => {
     conf.instance = answer;
@@ -37,11 +35,53 @@ if (setup) {
       })
     });
   });
-} else if (args.filter(e => e == "--cli").length) {
+} else if (hasFlag("--cli")) {
   enableCli();
-} else if (args.filter(e => e == "--exec").length){
+} else if (hasFlag("--update-set")) {
+  var command = args[args.indexOf("--update-set") + 1];
+  if (command == "list") {
+    var xhttp = new XMLHttpRequest();
+    var link = "";
+    if (hasFlag("--app")) {
+      link = "https://" + conf.instance + ".service-now.com/api/x_149971_test/synow_us?app=" + args[args.indexOf("--app") + 1];
+    } else {
+      link = "https://" + conf.instance + ".service-now.com/api/x_149971_test/synow_us";
+    }
+    xhttp.open("GET", link, false);
+    xhttp.setRequestHeader("Accept", "application/json");
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.setRequestHeader("Authorization", conf.authorization);
+    xhttp.send();
+    if (xhttp.responseText && xhttp.responseText.length < 1000) {
+      var response = JSON.parse(xhttp.responseText);
+      console.log(response.result);
+    }
+    process.exit(0);
+  } else if (command == "download") {
+    var app = args[args.indexOf("--app") + 1];
+    var name = args[args.indexOf("--name") + 1];
+    var xhttp = new XMLHttpRequest();
+    const link = "https://" + conf.instance + ".service-now.com/api/x_149971_test/synow_us?app=" + app + "&name=" + name;
+    xhttp.open("PUT", link, false);
+    xhttp.setRequestHeader("Accept", "application/json");
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.setRequestHeader("Authorization", conf.authorization);
+    xhttp.send();
+    var downloadUrl = "https://" + conf.instance + ".service-now.com/" + JSON.parse(xhttp.responseText).result;
+
+    var xdownload = new XMLHttpRequest();
+    xdownload.open("GET", downloadUrl, false);
+    xdownload.setRequestHeader("Accept", "application/json");
+    xdownload.setRequestHeader("Content-Type", "application/json");
+    xdownload.setRequestHeader("Authorization", conf.authorization);
+    xdownload.send();
+    fs.outputFile("./" + app + "-" + name + ".xml", xdownload.responseText.toString(), "utf8", () => process.exit(0));
+  } else if (command == "publish") {
+
+  }
+} else if (hasFlag("--exec")) {
   var number = args.indexOf("--exec") + 1;
-  if(args.length > number){
+  if (args.length > number) {
     var filename = args[number];
     fs.readFile(filename, "utf8", (err, data) => {
       sendCommand(data);
@@ -59,7 +99,6 @@ if (setup) {
     runAppSync(conf);
   }
 }
-
 
 function getAppFilesInfo(conf) {
   if (conf.app != null) {
@@ -126,26 +165,25 @@ function syncWidgetCode(link, body, type = "PUT") {
 }
 
 var commands = [];
-function executeCommand(command){
-  commands.push(command);
 
-  sendCommand(commands.join("\n"));
-  // var xhttp = new XMLHttpRequest();
-  // const link = "https://dev69271.service-now.com/api/x_149971_test/synow";
-  // xhttp.open("PUT", link, false);
-  // xhttp.setRequestHeader("Accept", "application/json");
-  // xhttp.setRequestHeader("Content-Type", "application/json");
-  // xhttp.setRequestHeader("Authorization", conf.authorization);
-  // xhttp.send(commands.join("\n"));
-  // if(xhttp.responseText && xhttp.responseText.length < 1000){
-  //   var response = JSON.parse(xhttp.responseText);
-  //   console.log(response.result);
-  // }
+function executeCommand(command) {
+  commands.push(command);
+  var xhttp = new XMLHttpRequest();
+  const link = "https://" + conf.instance + ".service-now.com/api/x_149971_test/synow";
+  xhttp.open("PUT", link, false);
+  xhttp.setRequestHeader("Accept", "application/json");
+  xhttp.setRequestHeader("Content-Type", "application/json");
+  xhttp.setRequestHeader("Authorization", conf.authorization);
+  xhttp.send(commands.join("\n"));
+  if (xhttp.responseText && xhttp.responseText.length < 1000) {
+    var response = JSON.parse(xhttp.responseText);
+    console.log(response.result);
+  }
 }
 
-function sendCommand(command){
+function sendCommand(command) {
   var xhttp = new XMLHttpRequest();
-  const link = "https://dev69271.service-now.com/api/x_149971_test/synow";
+  const link = "https://" + conf.instance + ".service-now.com/api/x_149971_test/synow";
   xhttp.open("PUT", link, false);
   xhttp.setRequestHeader("Accept", "application/json");
   xhttp.setRequestHeader("Content-Type", "application/json");
@@ -193,4 +231,8 @@ function enableSetup() {
     process.exit(0);
   });
   interface.prompt();
+}
+
+function hasFlag(arg) {
+  return args.filter(e => e == arg).length
 }

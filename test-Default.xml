@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><unload unload_date="2018-11-04 02:42:49">
+<sys_remote_update_set action="INSERT_OR_UPDATE">
+<application display_value="test">d1f26e6fdb012300236c2a9a489619ae</application>
+<application_name>test</application_name>
+<application_scope>x_149971_test</application_scope>
+<application_version>1.0.0</application_version>
+<collisions/>
+<commit_date/>
+<deleted/>
+<description>Automatically created by the system</description>
+<inserted/>
+<name>Default</name>
+<origin_sys_id/>
+<parent display_value=""/>
+<release_date/>
+<remote_base_update_set display_value=""/>
+<remote_parent_id/>
+<remote_sys_id>2df2a2afdb012300236c2a9a489619b2</remote_sys_id>
+<state>loaded</state>
+<summary/>
+<sys_class_name>sys_remote_update_set</sys_class_name>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2018-11-04 02:42:48</sys_created_on>
+<sys_id>389eed3ddb612300236c2a9a48961910</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2018-11-04 02:42:48</sys_updated_on>
+<update_set display_value=""/>
+<update_source display_value=""/>
+<updated/>
+</sys_remote_update_set>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="test">d1f26e6fdb012300236c2a9a489619ae</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_include_4603e2afdb012300236c2a9a489619b4</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_include"&gt;&lt;sys_script_include action="INSERT_OR_UPDATE"&gt;&lt;access&gt;package_private&lt;/access&gt;&lt;active&gt;true&lt;/active&gt;&lt;api_name&gt;x_149971_test.Testing&lt;/api_name&gt;&lt;caller_access/&gt;&lt;client_callable&gt;false&lt;/client_callable&gt;&lt;description/&gt;&lt;name&gt;Testing&lt;/name&gt;&lt;script&gt;&lt;![CDATA[var Testing = Class.create();
+Testing.prototype = {
+    initialize: function() {
+    },
+
+    trying: function(){
+
+        gs.info("Will this change be in the global scope?");
+        gs.info("This is a sample function");
+    },
+
+    type: 'Testing'
+};]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_include&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2018-10-15 20:30:06&lt;/sys_created_on&gt;&lt;sys_id&gt;4603e2afdb012300236c2a9a489619b4&lt;/sys_id&gt;&lt;sys_mod_count&gt;2&lt;/sys_mod_count&gt;&lt;sys_name&gt;Testing&lt;/sys_name&gt;&lt;sys_package display_value="test" source="x_149971_test"&gt;d1f26e6fdb012300236c2a9a489619ae&lt;/sys_package&gt;&lt;sys_policy&gt;read&lt;/sys_policy&gt;&lt;sys_scope display_value="test"&gt;d1f26e6fdb012300236c2a9a489619ae&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_include_4603e2afdb012300236c2a9a489619b4&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2018-10-15 20:35:42&lt;/sys_updated_on&gt;&lt;/sys_script_include&gt;&lt;/record_update&gt;</payload>
+<payload_hash>-1801106932</payload_hash>
+<remote_update_set display_value="Default">389eed3ddb612300236c2a9a48961910</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2018-11-04 02:42:48</sys_created_on>
+<sys_id>bc9eed3ddb612300236c2a9a48961910</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>1667971084e0000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2018-11-04 02:42:48</sys_updated_on>
+<table/>
+<target_name>Testing</target_name>
+<type>Script Include</type>
+<update_domain>global</update_domain>
+<update_guid>825466ef78012300dd535f1f59b7c18f</update_guid>
+<update_guid_history>825466ef78012300dd535f1f59b7c18f:-1801106932,46c3aeafcb012300ae531f145aa4274e:1965632873,0413e2afc2012300df42d4c4be5a9c7e:-1192770708</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="test">d1f26e6fdb012300236c2a9a489619ae</application>
+<category>customer</category>
+<comments/>
+<name>sys_app_d1f26e6fdb012300236c2a9a489619ae</name>
+<payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_app"><sys_app action="INSERT_OR_UPDATE"><active>true</active><enforce_license>none</enforce_license><js_level>helsinki_es5</js_level><licensable>true</licensable><license_category>none</license_category><license_model>none</license_model><logo/><menu/><name>test</name><private>false</private><restrict_table_access>false</restrict_table_access><runtime_access_tracking>permissive</runtime_access_tracking><scope>x_149971_test</scope><scoped_administration>false</scoped_administration><short_description/><source>x_149971_test</source><store_correlation_id/><store_url/><sys_class_name>sys_app</sys_class_name><sys_code/><sys_created_by>admin</sys_created_by><sys_created_on>2018-10-15 20:29:39</sys_created_on><sys_id>d1f26e6fdb012300236c2a9a489619ae</sys_id><sys_mod_count>0</sys_mod_count><sys_updated_by>admin</sys_updated_by><sys_updated_on>2018-10-15 20:29:39</sys_updated_on><template/><trackable>true</trackable><user_role/><vendor/><vendor_prefix/><version>1.0.0</version></sys_app></record_update>]]></payload>
+<payload_hash>1269523728</payload_hash>
+<remote_update_set display_value="Default">389eed3ddb612300236c2a9a48961910</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2018-11-04 02:42:48</sys_created_on>
+<sys_id>f89eed3ddb612300236c2a9a48961910</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>166796b7d0a0000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2018-11-04 02:42:48</sys_updated_on>
+<table/>
+<target_name>test</target_name>
+<type>Custom Application</type>
+<update_domain>global</update_domain>
+<update_guid>e5f2a2af3c012300d99f7870d713ceb4</update_guid>
+<update_guid_history>e5f2a2af3c012300d99f7870d713ceb4:1269523728</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+</unload>
