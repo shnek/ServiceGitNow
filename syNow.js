@@ -39,6 +39,17 @@ if (setup) {
   });
 } else if (args.filter(e => e == "--cli").length) {
   enableCli();
+} else if (args.filter(e => e == "--exec").length){
+  var number = args.indexOf("--exec") + 1;
+  if(args.length > number){
+    var filename = args[number];
+    fs.readFile(filename, "utf8", (err, data) => {
+      sendCommand(data);
+      process.exit(0);
+    });
+  } else {
+    console.log("You must provide filename of script you want to execute");
+  }
 } else {
   enableSetup();
   if (!conf.authorization || !conf.instance) {
@@ -118,18 +129,32 @@ var commands = [];
 function executeCommand(command){
   commands.push(command);
 
+  sendCommand(commands.join("\n"));
+  // var xhttp = new XMLHttpRequest();
+  // const link = "https://dev69271.service-now.com/api/x_149971_test/synow";
+  // xhttp.open("PUT", link, false);
+  // xhttp.setRequestHeader("Accept", "application/json");
+  // xhttp.setRequestHeader("Content-Type", "application/json");
+  // xhttp.setRequestHeader("Authorization", conf.authorization);
+  // xhttp.send(commands.join("\n"));
+  // if(xhttp.responseText && xhttp.responseText.length < 1000){
+  //   var response = JSON.parse(xhttp.responseText);
+  //   console.log(response.result);
+  // }
+}
+
+function sendCommand(command){
   var xhttp = new XMLHttpRequest();
   const link = "https://dev69271.service-now.com/api/x_149971_test/synow";
   xhttp.open("PUT", link, false);
   xhttp.setRequestHeader("Accept", "application/json");
   xhttp.setRequestHeader("Content-Type", "application/json");
   xhttp.setRequestHeader("Authorization", conf.authorization);
-  console.log(commands.join("\n"));
-  xhttp.send(commands.join("\n"));
-  console.log(xhttp.responseText);
-  var response = JSON.parse(xhttp.responseText);
-  console.log(response.result);
-
+  xhttp.send(command);
+  if (xhttp.responseText && xhttp.responseText.length < 1000) {
+    var response = JSON.parse(xhttp.responseText);
+    console.log(response.result);
+  }
 }
 
 
