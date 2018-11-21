@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?><unload unload_date="2018-11-04 02:45:13">
+<sys_remote_update_set action="INSERT_OR_UPDATE">
+<application display_value="Global">global</application>
+<application_name>Global</application_name>
+<application_scope>global</application_scope>
+<application_version/>
+<collisions/>
+<commit_date/>
+<deleted/>
+<description>A purely scriptable REST Message client</description>
+<inserted/>
+<name>REST Message Scriptable Client</name>
+<origin_sys_id/>
+<parent display_value=""/>
+<release_date/>
+<remote_base_update_set display_value=""/>
+<remote_parent_id/>
+<remote_sys_id>92b089fadb112300236c2a9a48961993</remote_sys_id>
+<state>loaded</state>
+<summary/>
+<sys_class_name>sys_remote_update_set</sys_class_name>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2018-11-04 02:45:13</sys_created_on>
+<sys_id>8c2fed3ddb612300236c2a9a48961913</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2018-11-04 02:45:13</sys_updated_on>
+<update_set display_value=""/>
+<update_source display_value=""/>
+<updated/>
+</sys_remote_update_set>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_include_f02ba3fde1e21100c3294e4a8036179a</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_include"&gt;&lt;sys_script_include action="INSERT_OR_UPDATE"&gt;&lt;active&gt;true&lt;/active&gt;&lt;client_callable&gt;false&lt;/client_callable&gt;&lt;description&gt;A scriptable REST Message library.  With this library you can create and consume REST web services without building out the RESTMessage records in the platform.&lt;/description&gt;&lt;name&gt;RESTMessageScripted&lt;/name&gt;&lt;script&gt;&lt;![CDATA[var RESTMessageScripted = Class.create();
+RESTMessageScripted.prototype = Object.extendsObject(RESTMessage, {
+	
+	/*
+ 	* Constructor
+ 	* Takes in an http function name:  get, post, put, delete
+ 	*/
+	initialize: function(funcName, endpoint) {
+		this.restMessageGr = new GlideRecord("sys_rest_message");
+		this.functionGr = new GlideRecord("sys_rest_message_fn");
+		this.headerGr = new GlideRecord("sys_rest_message_headers");
+		this.headerGrList = [];
+		this.fnHeaderGr = new GlideRecord("sys_rest_message_fn_headers");
+		this.fnHeaderGrList = [];
+		this.fnParamDefGr = new GlideRecord('sys_rest_message_fn_param_defs');
+		this.fnParamDefGrList = [];
+		
+		this.valid = false;
+		this.name;
+		this.props = new Packages.java.util.Properties();
+		this.funcName = funcName.toLowerCase();
+		this.useBasicAuth = false;
+		this.userName;
+		this.userPassword;
+		this.midServer; // mid server name minus mid.server
+		this.use_ecc;
+		this.eccResponse;
+		this.httpStatus;
+		this.eccParameters = {};
+		this.eccCorrelator;
+		this.endPoint = endpoint;
+		
+		
+	},
+	
+	execute: function(){
+		//OVERRIDING PARENT METHOD
+		var httpResponse = null;
+		var response = 'error';
+		this.httpStatus = null;
+		
+		
+		this._handleEndpoint();
+		
+		var headers = this._handleHeaders();
+		var params = this._handleParameters();
+		
+		var creds = this._handleBasicAuth();
+		
+		
+		if (this.use_ecc) {
+			// Build ECC queue payload
+			var payload = new GlideXMLDocument('parameters');
+			this._addParameterToPayload(payload, 'message_headers', this._getMessageFields(headers));
+			this._addParameterToPayload(payload, 'message_parameters', this._getMessageFields(params));
+			
+			for (var name in this.eccParameters){
+				this._addParameterToPayload(payload, name, this.eccParameters[name]);
+			}
+			
+			if (this.useBasicAuth) {
+				if (creds) {
+					var encrypter = new GlideEncrypter();
+					this._addParameterToPayload(payload, 'rest_user', creds.user);
+					this._addParameterToPayload(payload, 'rest_password', 'enc:' + encrypter.reencryptForAutomation(creds.password));
+				}
+			}
+			// if the function takes content
+			if (this.funcName == 'post' || this.funcName == 'put'){
+				this._addParameterToPayload(payload, 'content', this._handleContent());
+			}
+			this._createECCQueueEntry(payload.toString());
+		} else {
+			var httpRequest = new GlideHTTPRequest(this.endPoint);
+			
+			if (this.useBasicAuth) {
+				if (creds) {
+					var Encrypter = new GlideEncrypter();
+					var userpassword = Encrypter.decrypt(creds.password);
+					httpRequest.setBasicAuth(creds.user, userpassword);
+				}
+			}
+			
+			// Pass the headers through
+			for (var h = 0; h &lt; headers.length; h++)
+				httpRequest.addHeader(headers[h].name, headers[h].value);
+			
+			// Pass the parameters through
+			for (var i = 0; i &lt; params.length; i++)
+				httpRequest.addParameter(params[i].name, params[i].value);
+			
+			if (this.funcName == 'get')
+				httpResponse = this._handleGetRequest(httpRequest);
+			else if (this.funcName == 'post')
+				httpResponse = this._handlePostRequest(httpRequest, this._handleContent());
+			else if (this.funcName == 'put')
+				httpResponse = this._handlePutRequest(httpRequest, this._handleContent());
+			else if (this.funcName == 'delete')
+				httpResponse = this._handleDeleteRequest(httpRequest);
+		}
+		
+		
+		return httpResponse;
+	},
+	
+	_handleHeaders: function() {
+		//OVERRIDING PARENT METHOD
+		var headers = [];
+
+		for(var i in this.fnHeaderGrList){
+			var hgr = this.fnHeaderGrList[i];
+			//headers['' + hgr.name] = '' + hgr.value;
+			var header = {};
+			header.name = ""+hgr.name;
+			header.value = ""+hgr.value;
+			headers.push(header);
+		}
+
+        return headers;
+	},
+	
+	_handleParameters: function() {
+		//OVERRIDING PARENT METHOD
+		var params = [];
+        
+		for(var i in this.fnParamDefGrList){
+			var pgr = this.fnParamDefGrList[i];
+            var value = '' + pgr.value;
+            var param = {};
+            param.name = '' + pgr.name;
+            param.value = '' + GlideStringUtil.urlEncode(value);
+            params.push(param);
+		}
+        return params;
+	},
+	
+	_handleContent: function() {
+		//OVERRIDING PARENT FUNCTION
+		var content = '' + this.functionGr.content;
+        return content;  
+	},
+	
+	//Headers
+	addHeader: function (name, value){
+		var h = new GlideRecord("sys_rest_message_fn_headers");
+		h.initialize();
+		h.name = name;
+		h.value = value;
+		this.fnHeaderGrList.push(h);
+	},
+	
+	//Parameters
+	addRequestParameter: function (name, value){
+		var p = new GlideRecord("sys_rest_message_fn_param_defs");	
+		p.initialize();
+		p.name = name;
+		p.value = value;
+		this.fnParamDefGrList.push(p);
+	},
+
+	
+	//Content
+	setContent: function (content){
+		this.functionGr.content = content;
+	},
+	
+	
+	type: 'RESTMessageScripted'
+});]]&gt;&lt;/script&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2014-01-29 15:15:36&lt;/sys_created_on&gt;&lt;sys_id&gt;f02ba3fde1e21100c3294e4a8036179a&lt;/sys_id&gt;&lt;sys_mod_count&gt;17&lt;/sys_mod_count&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2014-01-29 21:36:18&lt;/sys_updated_on&gt;&lt;/sys_script_include&gt;&lt;sys_app_file action="INSERT_OR_UPDATE"&gt;&lt;customer_update&gt;false&lt;/customer_update&gt;&lt;publish_override/&gt;&lt;replace_on_upgrade&gt;false&lt;/replace_on_upgrade&gt;&lt;restore/&gt;&lt;sys_app/&gt;&lt;sys_code&gt;!!1WY/&lt;/sys_code&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2014-01-29 15:15:36&lt;/sys_created_on&gt;&lt;sys_id&gt;cf8ce7b5e1e21100c3294e4a80361722&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_name&gt;RESTMessageScripted&lt;/sys_name&gt;&lt;sys_parent/&gt;&lt;sys_path&gt;!!1WY/&lt;/sys_path&gt;&lt;sys_policy/&gt;&lt;sys_source_deleted&gt;false&lt;/sys_source_deleted&gt;&lt;sys_source_id&gt;f02ba3fde1e21100c3294e4a8036179a&lt;/sys_source_id&gt;&lt;sys_source_table&gt;sys_script_include&lt;/sys_source_table&gt;&lt;sys_type&gt;code&lt;/sys_type&gt;&lt;sys_update_name&gt;sys_script_include_f02ba3fde1e21100c3294e4a8036179a&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2014-01-29 21:36:18&lt;/sys_updated_on&gt;&lt;/sys_app_file&gt;&lt;/record_update&gt;</payload>
+<payload_hash/>
+<remote_update_set display_value="REST Message Scriptable Client">8c2fed3ddb612300236c2a9a48961913</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2018-11-04 02:45:13</sys_created_on>
+<sys_id>402fed3ddb612300236c2a9a48961914</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>166abe28a340000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2018-11-04 02:45:13</sys_updated_on>
+<table/>
+<target_name>RESTMessageScripted</target_name>
+<type>Script Include</type>
+<update_domain>global</update_domain>
+<update_guid/>
+<update_guid_history/>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+</unload>

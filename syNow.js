@@ -76,8 +76,18 @@ if (hasFlag("--setup")) {
     xdownload.setRequestHeader("Authorization", conf.authorization);
     xdownload.send();
     fs.outputFile("./" + app + "-" + name + ".xml", xdownload.responseText.toString(), "utf8", () => process.exit(0));
-  } else if (command == "publish") {
-
+  } else if (command == "set") {
+    var app = args[args.indexOf("--app") + 1];
+    var name = args[args.indexOf("--name") + 1];
+    var status = args[args.indexOf("--status") + 1];
+    var xhttp = new XMLHttpRequest();
+    const link = "https://" + conf.instance + ".service-now.com/api/x_149971_test/synow_us?app=" + app + "&name=" + name + "&status=" + status;
+    xhttp.open("POST", link, false);
+    xhttp.setRequestHeader("Accept", "application/json");
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.setRequestHeader("Authorization", conf.authorization);
+    xhttp.send();
+    process.exit(0);
   }
 } else if (hasFlag("--exec")) {
   var number = args.indexOf("--exec") + 1;
