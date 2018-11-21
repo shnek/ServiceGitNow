@@ -1,0 +1,16 @@
+@font-face {
+font-family: "SourceSansPro";
+src: url("/styles/fonts/source-sans-pro/SourceSansPro-Regular.eot");
+src: url("/styles/fonts/source-sans-pro/SourceSansPro-Regular.eot?#iefix") format("embedded-opentype"), url("/styles/fonts/source-sans-pro/SourceSansPro-Regular.otf.woff") format("woff"), url("/styles/fonts/source-sans-pro/SourceSansPro-Regular.ttf") format("truetype"); }
+@font-face {
+font-family: "SourceSansProLight";
+src: url("/styles/fonts/source-sans-pro/SourceSansPro-Light.eot");
+src: url("/styles/fonts/source-sans-pro/SourceSansPro-Light.eot?#iefix") format("embedded-opentype"), url("/styles/fonts/source-sans-pro/SourceSansPro-Light.otf.woff") format("woff"), url("/styles/fonts/source-sans-pro/SourceSansPro-Light.ttf") format("truetype"); }
+@font-face {
+font-family: "SourceSansProSemibold";
+src: url("/styles/fonts/source-sans-pro/SourceSansPro-Semibold.eot");
+src: url("/styles/fonts/source-sans-pro/SourceSansPro-Semibold.eot?#iefix") format("embedded-opentype"), url("/styles/fonts/source-sans-pro/SourceSansPro-Semibold.otf.woff") format("woff"), url("/styles/fonts/source-sans-pro/SourceSansPro-Semibold.ttf") format("truetype"); }
+@font-face {
+font-family: "SourceSansProBold";
+src: url("/styles/fonts/source-sans-pro/SourceSansPro-Bold.eot");
+src: url("/styles/fonts/source-sans-pro/SourceSansPro-Bold.eot?#iefix") format("embedded-opentype"), url("/styles/fonts/source-sans-pro/SourceSansPro-Bold.otf.woff") format("woff"), url("/styles/fonts/source-sans-pro/SourceSansPro-Bold.ttf") format("truetype"); }
