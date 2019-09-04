@@ -105,7 +105,8 @@ if (hasFlag("--setup")) {
   if (!conf.authorization || !conf.instance) {
     console.log("You have not configured the instance, please run this command with --setup flag");
   } else {
-    getAppFilesInfo(conf);
+    //getAppFilesInfo(conf);
+    getUpdateSetFilesInfo(conf);
     runAppSync(conf);
   }
 }
@@ -128,6 +129,24 @@ function getAppFilesInfo(conf) {
         }
       });
     }
+  }
+}
+
+function getUpdateSetFilesInfo(conf){
+  const updateSet = "13af18d64fa33300e40f2b8ca310c7d7";
+  const setURL = "https://" + conf.instance + ".service-now.com/api/now/table/sys_update_xml?sysparm_query=update_set=" + updateSet;
+  var response = syncWidgetCode(setURL, "", "GET").map(e => e.name);
+  const appURL = "https://" + conf.instance + ".service-now.com/api/now/table/sys_metadata?sysparm_query=sys_update_nameIN" + response.toString();
+  response = syncWidgetCode(appURL, "", "GET");
+  if (response.length > 0) {
+    response.forEach(e => {
+      var element = conf.tables.filter(table => table.name == e.sys_class_name);
+      if (element.length > 0) {
+        element[0].sys_ids.push(e.sys_id);
+      } else {
+        console.log(e.sys_class_name + " is not supported in this version");
+      }
+    });
   }
 }
 
@@ -159,7 +178,35 @@ function runAppSync(conf) {
       });
     })
   });
+}
 
+function runUpdateSetSync(conf) {
+  conf.tables.forEach((table) => {
+    table.sys_ids.forEach((sys_id) => {
+      const link = "https://" + conf.instance + ".service-now.com/api/now/table/" + table.name + "/" + sys_id;
+      const response = syncWidgetCode(link, '');
+      table.files.forEach((e) => {
+        var foldername = response[table.foldername].split(" ").join("_").split("/").join("_")
+        fs.ensureDirSync("./" + table.name + "/" + foldername);
+        fs.outputFile("./" + table.name + "/" + foldername + "/" + e.filename, response[e.bodyname])
+          .then(chokidar.watch("./" + table.name + "/" + foldername + "/" + e.filename, {
+              persistent: true,
+              interval: conf.watcherFrequency
+            })
+            .on('change', (event, path) => {
+              console.log("Syncing " + event);
+              var data = fs.readFile("./" + table.name + "/" + foldername + "/" + e.filename, "utf8", (err, data) => {
+                if (err || !data) {} else {
+                  var body = {};
+                  body[e.bodyname] = data;
+                  syncWidgetCode(link, JSON.stringify(body));
+                }
+              });
+            })
+          )
+      });
+    })
+  });
 }
 
 function syncWidgetCode(link, body, type = "PUT") {
@@ -170,7 +217,7 @@ function syncWidgetCode(link, body, type = "PUT") {
   xhttp.setRequestHeader("Authorization", conf.authorization);
   xhttp.send(body);
   var response = JSON.parse(xhttp.responseText);
-  console.log(response);
+  // console.log(response);
   return response.result;
 }
 
