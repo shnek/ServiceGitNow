@@ -124,7 +124,7 @@ function getAppFilesInfo(conf) {
         if (element.length > 0) {
           element[0].sys_ids.push(e.sys_id);
         } else {
-          //console.log(e.sys_class_name + " is not supported in this version");
+          console.log(e.sys_class_name + " is not supported in this version");
         }
       });
     }
